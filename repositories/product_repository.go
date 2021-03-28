@@ -60,7 +60,7 @@ func (p *ProductManager) Insert(product *datamodels.Product) (productId int64, e
 	return result.LastInsertId()
 }
 
-//
+//删除
 func (p *ProductManager) Delete(productId int64) bool {
 	if err := p.Conn(); err != nil {
 		return false
@@ -75,4 +75,21 @@ func (p *ProductManager) Delete(productId int64) bool {
 		return false
 	}
 	return true
+}
+
+//更新
+func (p *ProductManager) Update(product *datamodels.Product) error {
+	if err := p.Conn(); err != nil {
+		return err
+	}
+	sql := "update product set productName = ?, productNum = ?, productImage = ?, productUrl = ?"
+	stmt, err := p.mysqlConn.Prepare(sql)
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(product.ProductName, product.ProductNum, product.ProductImage, product.ProductUrl)
+	if err != nil {
+		return err
+	}
+	return nil
 }
