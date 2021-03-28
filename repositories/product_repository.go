@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"go-product/common"
 	"go-product/datamodels"
+	"strconv"
 )
 
 //开发接口
@@ -92,4 +93,22 @@ func (p *ProductManager) Update(product *datamodels.Product) error {
 		return err
 	}
 	return nil
+}
+
+// 根据上篇的id查询商品
+func (p *ProductManager) SelectByKey(productId int64) (product *datamodels.Product, err error) {
+	if err := p.Conn(); err != nil {
+		return &datamodels.Product{}, err
+	}
+	sql := "select * from " + p.table + "where id = " + strconv.FormatInt(productId, 10)
+	row, err := p.mysqlConn.Query(sql)
+	if err != nil {
+		return &datamodels.Product{}, err
+	}
+	result := common.GetResultRow(row)
+	if len(result) == 0 {
+		return &datamodels.Product{}, nil
+	}
+	common.DataToStructByTagSql(result, product)
+	return
 }
